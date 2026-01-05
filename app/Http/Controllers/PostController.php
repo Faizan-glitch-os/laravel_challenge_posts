@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Post;
 use DateTime;
+use App\Models\Post;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 use function Symfony\Component\Clock\now;
+use Illuminate\Support\Facades\Validator;
 
 class PostController extends Controller
 {
@@ -17,10 +18,14 @@ class PostController extends Controller
      */
     public function index()
     {
-        //
         $published = Post::where('is_published', '=', true)->get();
+        $unPublished = Post::where('is_published', '=', false)->get();
 
-        return view('posts', ['published' => $published]);
+
+        return view('posts', [
+            'published' => $published,
+            'unPublished' => $unPublished
+        ]);
     }
 
     /**
@@ -43,7 +48,7 @@ class PostController extends Controller
             'published_at' => $isPublished ? now() : null
         ]);
 
-        return redirect('/published_posts', 302);
+        return redirect('/', 302);
     }
 
     /**
@@ -83,6 +88,14 @@ class PostController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $validator = Validator::make(['id' => $id], ['id' => 'required|string']);
+        $id = $validator->safe()->only('id');
+        $post = Post::destroy($id);
+
+        if ($post) {
+            return redirect('/')->with('message', 'Succesfully deleted');
+        }
+
+        return back()->with('message', 'No Post found to delete');
     }
 }
