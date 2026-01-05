@@ -18,10 +18,15 @@
                 <p>
                     {{ $post->content }}
                 </p>
-                <form action="/delete_post/{{ $post->id }}" method="POST">
+                <form action="{{ route('delete.post', $post->id) }}" method="POST">
                     @method('delete')
                     @csrf
                     <button>Delete</button>
+                </form>
+
+                <form action="{{ route('edit.post', $post->id) }}" method="get">
+                    @csrf
+                    <button>Edit</button>
                 </form>
             </li>
         @endforeach
@@ -39,10 +44,15 @@
                     <p>
                     {{ $post->content }}
                     </p>
-                    <form action="/delete_post/{{ $post->id }}" method="POST">
+                    <form action="{{ route('delete.post', $post->id) }}" method="POST">
                     @method('delete')
                     @csrf
                     <button>Delete</button>
+                    </form>
+
+                <form action="{{ route('edit.post', $post->id) }}" method="get">
+                    @csrf
+                    <button>Edit</button>
                 </form>
                 </li>
             @endforeach

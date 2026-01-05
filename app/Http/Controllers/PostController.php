@@ -33,6 +33,14 @@ class PostController extends Controller
      */
     public function create(Request $request)
     {
+        return view('create_post');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
         $incomingData = $request->validate([
             'title' => 'required',
             'content' => 'required',
@@ -48,15 +56,7 @@ class PostController extends Controller
             'published_at' => $isPublished ? now() : null
         ]);
 
-        return redirect('/', 302);
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
+        return to_route('home')->with('message', 'Post Created Succesfully');
     }
 
     /**
@@ -72,7 +72,16 @@ class PostController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $validator = Validator::make(['id' => $id], ['id' => 'required|string']);
+        $id = $validator->safe()->only('id');
+
+        $post = Post::where('id', '=', $id)->first();
+
+        if ($post) {
+            return view('edit_post', ['post' => $post, 'id' => $id['id']]);
+        }
+
+        return back()->with('message', 'No such post found');
     }
 
     /**
@@ -80,7 +89,28 @@ class PostController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $incomingData = $request->validate([
+            'title' => 'required',
+            'content' => 'required',
+            'publish' => 'nullable'
+        ]);
+        $isPublished = $request->has('publish');
+
+        $validator = Validator::make(['id' => $id], ['id' => 'required|string']);
+        $id = $validator->safe()->only('id');
+
+        $post = Post::find($id['id']);
+        if ($post) {
+            $post->title = $incomingData['title'];
+            $post->content = $incomingData['content'];
+            $post->is_published = $isPublished ? true : false;
+
+            $post->save();
+
+            return to_route('home')->with('message', 'Succesfully edited');
+        }
+
+        return back()->with('message', 'No such post found');
     }
 
     /**
@@ -93,7 +123,7 @@ class PostController extends Controller
         $post = Post::destroy($id);
 
         if ($post) {
-            return redirect('/')->with('message', 'Succesfully deleted');
+            return to_route('home')->with('message', 'Succesfully deleted');
         }
 
         return back()->with('message', 'No Post found to delete');

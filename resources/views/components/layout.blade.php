@@ -7,7 +7,7 @@
 </head>
 <body>
     <header>
-        <a href="/create_post">
+        <a href="{{ route('show.create') }}">
             Create
         </a>
     </header>
